@@ -6,7 +6,7 @@
     <h1 class="text-emerald-500 font-bold text-xl">instaMailEr</h1>
 
     <!-- Center: Navigation buttons -->
-    <div class="flex items-center space-x-4">
+    <div class="flex items-center space-x-4" v-if="showNav">
       <!-- Inbox Button -->
       <button
         @click="$emit('go-inbox')"
@@ -53,7 +53,10 @@
 export default {
   name: "TopNav",
   props: {
-    email: String,
+    showNav: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>

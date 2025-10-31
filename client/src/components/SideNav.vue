@@ -2,6 +2,7 @@
   <aside
     class="flex flex-col items-center justify-between bg-[#064EA4] text-white h-full w-full"
   >
+    <!-- Main Section -->
     <div
       class="flex flex-col items-center w-full space-y-6 p-6 overflow-y-auto"
     >
@@ -15,33 +16,49 @@
         <h1 class="text-xl font-semibold">InstaMail</h1>
       </div>
 
-      <!-- Inputs -->
-      <div class="w-full">
+      <!-- Email Creator Section -->
+      <div v-if="!generatedEmail" class="w-full space-y-4">
         <input
           type="text"
+          v-model.trim="username"
           placeholder="Enter username"
-          class="w-full px-3 py-2 rounded-md bg-white text-gray-800 outline-none"
+          class="w-full px-3 py-2 rounded-md bg-white text-gray-800 outline-none focus:ring-2 focus:ring-emerald-400"
         />
+
+        <select
+          v-model="selectedDomain"
+          class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-800 font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
+        >
+          <option value="" disabled>Select a domain</option>
+          <option v-for="domain in emailList" :key="domain" :value="domain">
+            {{ domain }}
+          </option>
+        </select>
+
+        <button
+          @click="createEmail"
+          class="bg-emerald-500 rounded-md w-full px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          :disabled="!username || !selectedDomain"
+        >
+          Create
+        </button>
       </div>
 
-      <select
-        v-model="selectedDomain"
-        class="w-full px-3 py-2 mb-4 rounded-md border border-gray-300 bg-white text-gray-800 font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
-      >
-        <option value="" disabled>Select a domain</option>
-        <option v-for="domain in emailList" :key="domain" :value="domain">
-          {{ domain }}
-        </option>
-      </select>
-
-      <button class="bg-emerald-500 rounded-md w-full px-3 py-2">Create</button>
+      <!-- Generated Email Display -->
+      <div v-else class="w-full text-center">
+        <p
+          class="text-lg font-semibold bg-white text-[#064EA4] py-2 rounded-md break-all"
+        >
+          {{ generatedEmail }}
+        </p>
+      </div>
 
       <!-- Buttons Grid -->
-      <div class="grid grid-cols-2 gap-4 w-full">
+      <div class="grid grid-cols-2 gap-4 w-full mt-6">
         <button
           v-for="btn in buttons"
           :key="btn.label"
-          @click="handleClick(btn.label)"
+          @click="handleClick(btn.method)"
           class="flex flex-col items-center justify-center gap-2 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg p-4 transition duration-150 ease-in-out"
         >
           <img :src="btn.icon" class="h-10 w-10 object-contain" alt="" />
@@ -60,19 +77,79 @@ export default {
   name: "SideNav",
   data() {
     return {
-      emailList: ["@instamail.it", "@instamail.co", "@instamail.co.in"],
+      username: "",
       selectedDomain: "",
+      generatedEmail: "",
+      emailList: ["@instamail.it", "@instamail.co", "@instamail.co.in"],
       buttons: [
-        { label: "Copy", icon: require("@/assets/icons/copy.svg") },
-        { label: "Refresh", icon: require("@/assets/icons/refresh.svg") },
-        { label: "New", icon: require("@/assets/icons/new.svg") },
-        { label: "Delete", icon: require("@/assets/icons/delete.svg") },
+        {
+          label: "Copy",
+          icon: require("@/assets/icons/copy.svg"),
+          method: "copyEmail",
+        },
+        {
+          label: "Refresh",
+          icon: require("@/assets/icons/refresh.svg"),
+          method: "refreshInbox",
+        },
+        {
+          label: "New",
+          icon: require("@/assets/icons/new.svg"),
+          method: "generateNewEmail",
+        },
+        {
+          label: "Delete",
+          icon: require("@/assets/icons/delete.svg"),
+          method: "resetForm",
+        },
       ],
     };
   },
   methods: {
-    handleClick(action) {
-      console.log(`${action} clicked`);
+    createEmail() {
+      if (!this.username || !this.selectedDomain) {
+        alert("Please enter a username and select a domain!");
+        return;
+      }
+      this.generatedEmail = `${this.username}${this.selectedDomain}`;
+      this.$emit("email-generated", this.generatedEmail);
+    },
+
+    resetForm() {
+      this.username = "";
+      this.selectedDomain = "";
+      this.generatedEmail = "";
+      this.$emit("email-generated", "");
+    },
+
+    copyEmail() {
+      if (!this.generatedEmail) return alert("No email to copy!");
+      navigator.clipboard
+        .writeText(this.generatedEmail)
+        .then(() => alert("✅ Email copied to clipboard!"))
+        .catch(() => alert("❌ Failed to copy email."));
+    },
+
+    refreshInbox() {
+      alert("🔄 Inbox refreshed! (API integration coming soon 🚀)");
+    },
+
+    generateNewEmail() {
+      const randomUser = "user" + Math.floor(Math.random() * 10000);
+      const randomDomain =
+        this.emailList[Math.floor(Math.random() * this.emailList.length)];
+      this.username = randomUser;
+      this.selectedDomain = randomDomain;
+      this.generatedEmail = `${this.username}${this.selectedDomain}`;
+      this.$emit("email-generated", this.generatedEmail);
+    },
+
+    handleClick(methodName) {
+      if (typeof this[methodName] === "function") {
+        this[methodName]();
+      } else {
+        console.warn(`No method found for: ${methodName}`);
+      }
     },
   },
 };

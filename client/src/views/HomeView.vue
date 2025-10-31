@@ -2,14 +2,16 @@
   <div class="h-screen w-screen flex bg-gray-50 overflow-hidden">
     <!-- Sidebar -->
     <div class="flex flex-col bg-[#064EA4] text-white w-80 flex-shrink-0">
-      <SideNav />
+      <!-- Listen for email-generated from SideNav -->
+      <SideNav @email-generated="onEmailGenerated" />
     </div>
 
     <!-- Right Section -->
     <div class="flex flex-col flex-1 overflow-hidden">
       <!-- Top Navigation -->
       <div class="flex-shrink-0">
-        <TopNav />
+        <!-- Show TopNav only if email exists -->
+        <TopNav :showNav="showTopNav" />
       </div>
 
       <!-- Scrollable Content -->
@@ -86,5 +88,15 @@ import SideNav from "@/components/SideNav.vue";
 export default {
   name: "HomeView",
   components: { TopNav, SideNav },
+  data() {
+    return {
+      showTopNav: false,
+    };
+  },
+  methods: {
+    onEmailGenerated(email) {
+      this.showTopNav = !!email;
+    },
+  },
 };
 </script>
