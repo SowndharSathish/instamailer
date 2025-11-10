@@ -60,19 +60,36 @@ router.post('/generate', (req, res) => {
 
 // GET /active
 router.get('/active', (req, res) => {
-  const list = Array.from(activeEmails.entries()).map(([masked, info]) => ({
-    masked_email: masked,
-    original_email: info.original,
-    createdAt: new Date(info.createdAt).toISOString()
-  }));
+  try {
+    if (!activeEmails || !(activeEmails instanceof Map)) {
+      throw new Error('Active emails store is not available.');
+    }
 
-  res.json({
-    provided_by: 'instamailer-api',
-    success: true,
-    status: 200,
-    message: 'Active masked emails list.',
-    data: list
-  });
+    const list = Array.from(activeEmails.entries())
+      .filter(([masked, info]) => masked && info && info.original && info.createdAt)
+      .map(([masked, info]) => ({
+        masked_email: masked,
+        original_email: info.original,
+        createdAt: new Date(info.createdAt).toISOString()
+      }));
+
+    res.json({
+      provided_by: 'instamailer-api',
+      success: true,
+      status: 200,
+      message: 'Active masked emails list.',
+      data: list
+    });
+  } catch (error) {
+    console.error('Error fetching active masked emails:', error);
+    res.status(500).json({
+      provided_by: 'instamailer-api',
+      success: false,
+      status: 500,
+      message: 'Internal server error while fetching active masked emails.',
+      data: null
+    });
+  }
 });
 
 module.exports = router;
