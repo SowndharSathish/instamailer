@@ -4,30 +4,30 @@
   >
     <!-- Main Section -->
     <div
-      class="flex flex-col items-center w-full space-y-6 p-6 overflow-y-auto"
+      class="flex flex-col items-center w-full space-y-6 p-5 overflow-y-auto"
     >
       <!-- Logo -->
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2 mb-2">
         <div
-          class="bg-white text-[#064EA4] font-bold text-lg px-2 py-1 rounded-md"
+          class="bg-white text-[#064EA4] font-extrabold text-lg px-2 py-1 rounded-md"
         >
           IM
         </div>
-        <h1 class="text-xl font-semibold">InstaMail</h1>
+        <h1 class="text-xl font-semibold tracking-wide">InstaMail</h1>
       </div>
 
-      <!-- Email Creator Section -->
+      <!-- Email Creator -->
       <div v-if="!generatedEmail" class="w-full space-y-4">
         <input
           type="text"
           v-model.trim="username"
           placeholder="Enter username"
-          class="w-full px-3 py-2 rounded-md bg-white text-gray-800 outline-none focus:ring-2 focus:ring-emerald-400"
+          class="w-full px-3 py-2 rounded-md text-gray-800 bg-white outline-none focus:ring-2 focus:ring-emerald-400"
         />
 
         <select
           v-model="selectedDomain"
-          class="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-800 font-medium focus:ring-2 focus:ring-emerald-400 outline-none"
+          class="w-full px-3 py-2 rounded-md bg-white text-gray-800 border border-gray-200 focus:ring-2 focus:ring-emerald-400 outline-none"
         >
           <option value="" disabled>Select a domain</option>
           <option v-for="domain in emailList" :key="domain" :value="domain">
@@ -37,38 +37,42 @@
 
         <button
           @click="createEmail"
-          class="bg-emerald-500 rounded-md w-full px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="bg-emerald-500 hover:bg-emerald-600 w-full rounded-md px-3 py-2 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="!username || !selectedDomain"
         >
           Create
         </button>
       </div>
 
-      <!-- Generated Email Display -->
-      <div v-else class="w-full text-center">
+      <!-- Generated Email -->
+      <div v-else class="w-full text-center px-2">
         <p
-          class="text-lg font-semibold bg-white text-[#064EA4] py-2 rounded-md break-all"
+          class="text-lg font-semibold bg-white text-[#064EA4] py-2 px-3 rounded-md break-all shadow-sm"
         >
           {{ generatedEmail }}
         </p>
       </div>
 
       <!-- Buttons Grid -->
-      <div class="grid grid-cols-2 gap-4 w-full mt-6">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 w-full mt-4">
         <button
           v-for="btn in buttons"
           :key="btn.label"
           @click="handleClick(btn.method)"
-          class="flex flex-col items-center justify-center gap-2 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg p-4 transition duration-150 ease-in-out"
+          class="flex flex-col items-center justify-center gap-2 bg-white/10 hover:bg-white/20 active:scale-95 rounded-lg p-3 md:p-4 transition duration-150 text-center"
         >
-          <img :src="btn.icon" class="h-10 w-10 object-contain" alt="" />
-          <span class="text-sm font-medium">{{ btn.label }}</span>
+          <img :src="btn.icon" class="h-8 w-8 md:h-10 md:w-10" alt="" />
+          <span class="text-xs sm:text-sm font-medium tracking-wide">
+            {{ btn.label }}
+          </span>
         </button>
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="text-center text-sm opacity-80 mb-4">☕ Buy me a coffee</div>
+    <div class="text-center text-xs sm:text-sm opacity-80 pb-4">
+      ☕ Buy me a coffee
+    </div>
   </aside>
 </template>
 
@@ -138,6 +142,7 @@ export default {
       const randomUser = "user" + Math.floor(Math.random() * 10000);
       const randomDomain =
         this.emailList[Math.floor(Math.random() * this.emailList.length)];
+
       this.username = randomUser;
       this.selectedDomain = randomDomain;
       this.generatedEmail = `${this.username}${this.selectedDomain}`;

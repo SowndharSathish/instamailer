@@ -1,20 +1,34 @@
 <template>
-  <div class="h-screen w-screen flex bg-gray-50 overflow-hidden">
-    <!-- Sidebar -->
-    <div class="flex flex-col bg-[#064EA4] text-white w-80 flex-shrink-0">
-      <!-- Listen for email-generated from SideNav -->
-      <SideNav @email-generated="onEmailGenerated" />
+  <div class="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
+    <div class="flex-shrink-0 z-20 shadow-sm bg-white">
+      <TopNav
+        :showNav="true"
+        @toggle-sidebar="mobileSidebarOpen = !mobileSidebarOpen"
+      />
     </div>
 
-    <!-- Right Section -->
-    <div class="flex flex-col flex-1 overflow-hidden">
-      <!-- Top Navigation -->
-      <div class="flex-shrink-0">
-        <!-- Show TopNav only if email exists -->
-        <TopNav :showNav="showTopNav" />
-      </div>
+    <div class="flex flex-1 overflow-hidden relative">
+      <transition name="slide">
+        <div
+          v-if="mobileSidebarOpen"
+          class="fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden"
+          @click="mobileSidebarOpen = false"
+        ></div>
+      </transition>
 
-      <!-- Scrollable Content -->
+      <transition name="slide-left">
+        <aside
+          class="fixed top-0 left-0 h-full w-72 z-40 bg-[#064EA4] text-white flex flex-col shadow-lg transform transition-transform duration-300 md:static md:translate-x-0 md:w-80 md:flex-shrink-0"
+          :class="
+            mobileSidebarOpen
+              ? 'translate-x-0'
+              : '-translate-x-full md:translate-x-0'
+          "
+        >
+          <SideNav @email-generated="onEmailGenerated" />
+        </aside>
+      </transition>
+
       <main
         class="flex-1 overflow-y-auto p-10 bg-white text-gray-800 leading-relaxed"
       >
@@ -90,13 +104,33 @@ export default {
   components: { TopNav, SideNav },
   data() {
     return {
-      showTopNav: false,
+      mobileSidebarOpen: false,
     };
   },
   methods: {
     onEmailGenerated(email) {
-      this.showTopNav = !!email;
+      console.log("Email generated:", email);
     },
   },
 };
 </script>
+
+<style>
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-left-enter-from,
+.slide-left-leave-to {
+  transform: translateX(-100%);
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: opacity 0.3s ease;
+}
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+}
+</style>
